@@ -15,7 +15,7 @@ for (const file of commandFiles) {
 const cooldowns = new Discord.Collection();
 
 client.on('ready', () => {
-	console.log('Ready!');
+	console.log('dBot Ready!');
 });
 
 client.on('message', message => {
@@ -29,7 +29,20 @@ client.on('message', message => {
 	const command = client.commands.get(commandName)
 		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-	if (!command) return;
+  if (!command) return;
+  
+  if (command.permissions) {
+    let restricted = true;
+    for (let permission in command.permissions) {
+      if (message.author.hasPermission(permission)) {
+        restricted = false;
+        break;
+      }
+    }
+    if (restricted) {
+      return message.channel.send('You don\'t have permission to execute this command!');
+    }
+  }
 
 	if (command.guildOnly && message.channel.type !== 'text') {
 		return message.reply('I can\'t execute that command inside DMs!');
